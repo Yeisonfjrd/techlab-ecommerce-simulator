@@ -51,6 +51,7 @@ public class UserService {
     @Transactional
     public void delete(Long id) {
         users.delete(getEntity(id));
+        users.flush(); // same reason as ProductService.delete: a user with orders can't be deleted
     }
 
     public User getEntity(Long id) {

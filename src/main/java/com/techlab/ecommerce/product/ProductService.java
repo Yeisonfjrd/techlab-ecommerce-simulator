@@ -61,9 +61,13 @@ public class ProductService {
     @Transactional
     public void delete(Long id) {
         products.delete(getEntity(id));
+        // Run the DELETE now: if an order line still points here, the foreign key fails
+        // inside this method instead of at commit time, and the handler turns it into a 409
+        products.flush();
     }
 
-    Product getEntity(Long id) {
+    /** For other services (orders) that need the managed entity, not the DTO. */
+    public Product getEntity(Long id) {
         return products.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", id));
     }
 }
