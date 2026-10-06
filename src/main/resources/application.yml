@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: techlab-ecommerce
+  datasource:
+    url: jdbc:h2:mem:techlab
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
