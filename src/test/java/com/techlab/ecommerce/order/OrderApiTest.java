@@ -104,7 +104,14 @@ class OrderApiTest {
 
         mvc.perform(delete("/api/products/{id}", mouseId))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.title").value("Data conflict"));
+                .andExpect(jsonPath("$.detail").value("Product 'Mouse' is part of existing orders and can't be deleted"));
+    }
+
+    @Test
+    void aUserWithOrdersCantBeDeleted() throws Exception {
+        postJson("/api/orders", order(item(mouseId, 1))).andExpect(status().isCreated());
+
+        mvc.perform(delete("/api/users/{id}", userId)).andExpect(status().isConflict());
     }
 
     @Test

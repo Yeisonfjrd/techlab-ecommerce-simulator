@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.techlab.ecommerce.category.Category;
 import com.techlab.ecommerce.category.CategoryService;
+import com.techlab.ecommerce.common.error.BusinessRuleException;
 import com.techlab.ecommerce.common.error.ResourceNotFoundException;
 
 @Service
@@ -60,9 +61,13 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) {
-        products.delete(getEntity(id));
-        // Run the DELETE now: if an order line still points here, the foreign key fails
-        // inside this method instead of at commit time, and the handler turns it into a 409
+        Product product = getEntity(id);
+        if (products.isInAnyOrder(id)) {
+            throw new BusinessRuleException("Product '" + product.getName() + "' is part of existing orders and can't be deleted");
+        }
+        products.delete(product);
+        // Safety net: run the DELETE now, so if an order slipped in since the check above,
+        // the foreign key fails inside this method and the handler turns it into a 409
         products.flush();
     }
 

@@ -27,7 +27,9 @@ La idea ya estaba bien: **primero validar todo, después tocar**. Lo que no hab�
 4. **`@Transactional` en el método.** Aunque algo fallara a mitad de la fase 2, la base vuelve a como estaba.
 5. **El mismo producto dos veces en el carrito se suma.** El JS no lo contemplaba: dos líneas de 3 mouses con stock 5 pasaban cada una su chequeo y el stock quedaba en -1. Lo prueba `theSameProductTwiceIsCheckedAsOneQuantity`.
 6. **`@Version` en `Product`** (*optimistic locking*). Ver la pregunta de abajo.
-7. **No se puede borrar un producto que ya se vendió**: la clave foránea lo impide y el handler lo devuelve como 409 en vez de un 500. Uso `flush()` en el `delete` para que el error salte adentro del método y no al hacer commit.
+7. **No se puede borrar un producto que ya se vendió** (ni un usuario con pedidos). Primero lo chequeo con una consulta JPQL (`isInAnyOrder`) para dar un 409 con un mensaje claro. La clave foránea de la base queda como red de seguridad, y el `flush()` hace que, si falla, falle adentro del método.
+
+   > Lo aprendí con un test: mi primera versión confiaba solo en la clave foránea. En el test, como todo corre en la misma sesión de Hibernate, Hibernate detectó el problema **antes** de llegar a la base y tiró otra excepción (`TransientPropertyValueException`). Chequear explícitamente es más claro y no depende de ese detalle.
 
 ## Endpoints
 
