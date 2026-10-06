@@ -1,6 +1,7 @@
 package com.techlab.ecommerce.order;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -64,6 +65,35 @@ public class OrderService {
 
     public OrderResponse get(Long id) {
         return OrderResponse.from(getEntity(id));
+    }
+
+    /** Port of getOrdersByUserId, newest first. */
+    public List<OrderResponse> history(Long userId) {
+        users.getEntity(userId); // 404 for an unknown user instead of an empty list
+        return orders.findByUser_IdOrderByCreatedAtDesc(userId).stream().map(OrderResponse::from).toList();
+    }
+
+    /**
+     * Port of updateOrderStatus, which accepted any status. Only the transitions in
+     * OrderStatus are allowed, and cancelling puts the stock back on the shelf.
+     */
+    @Transactional
+    public OrderResponse updateStatus(Long id, OrderStatus next) {
+        Order order = getEntity(id);
+        OrderStatus current = order.getStatus();
+        if (!current.canMoveTo(next)) {
+            throw new BusinessRuleException("An order can't go from %s to %s".formatted(current, next));
+        }
+
+        if (next == OrderStatus.CANCELLED) {
+            order.getLines().forEach(line -> {
+                Product product = line.getProduct();
+                product.setStock(product.getStock() + line.getQuantity());
+            });
+        }
+
+        order.setStatus(next);
+        return OrderResponse.from(order);
     }
 
     Order getEntity(Long id) {
