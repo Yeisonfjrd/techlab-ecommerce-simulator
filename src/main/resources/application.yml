@@ -2,12 +2,14 @@ spring:
   application:
     name: techlab-ecommerce
   datasource:
-    url: jdbc:h2:mem:techlab
+    # PostgreSQL mode so the same Flyway migrations run on H2 and on the real database
+    url: jdbc:h2:mem:techlab;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     username: sa
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      # Flyway owns the schema (src/main/resources/db/migration); Hibernate only checks it matches
+      ddl-auto: validate
     open-in-view: false
   h2:
     console:

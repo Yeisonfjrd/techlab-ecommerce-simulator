@@ -5,8 +5,36 @@ on:
   pull_request:
     branches: [main, master]
 jobs:
-  build:
+  h2:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - run: mvn -B verify
+
+  # Same tests against a real PostgreSQL, so the migrations are proven on the database we deploy to
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: techlab
+          POSTGRES_USER: techlab
+          POSTGRES_PASSWORD: techlab
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U techlab"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      SPRING_PROFILES_ACTIVE: postgres
+      DATABASE_URL: jdbc:postgresql://localhost:5432/techlab
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
