@@ -21,7 +21,7 @@ mvn spring-boot:run
 - Price must be positive; stock can't be negative.
 - An order is all or nothing: every line is checked for stock before any stock is deducted.
 - Each order line stores the price at the time of the order, so later price changes don't rewrite history.
-- Products under 5 units count as low stock.
+- Products with 5 units or fewer count as low stock (configurable).
 - User emails are unique.
 
 ## Roadmap
