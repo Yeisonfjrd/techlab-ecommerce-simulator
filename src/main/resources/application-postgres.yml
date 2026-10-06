@@ -4,9 +4,6 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/techlab}
     username: ${DATABASE_USERNAME:techlab}
     password: ${DATABASE_PASSWORD:techlab}
-  jpa:
-    hibernate:
-      ddl-auto: update
   h2:
     console:
       enabled: false
