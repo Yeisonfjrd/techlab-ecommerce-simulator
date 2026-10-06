@@ -16,3 +16,8 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+techlab:
+  stock:
+    # products with this many units or fewer show up in /api/products/low-stock
+    low-threshold: 5

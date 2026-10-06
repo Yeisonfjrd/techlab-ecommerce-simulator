@@ -16,10 +16,19 @@ public class ProductService {
 
     private final ProductRepository products;
     private final CategoryService categories;
+    private final StockProperties stock;
 
-    public ProductService(ProductRepository products, CategoryService categories) {
+    public ProductService(ProductRepository products, CategoryService categories, StockProperties stock) {
         this.products = products;
         this.categories = categories;
+        this.stock = stock;
+    }
+
+    /** Port of renderLowStockProducts: `p.stock <= MIN_STOCK_THRESHOLD`. */
+    public List<ProductResponse> lowStock() {
+        return products.findByStockLessThanEqualOrderByStockAsc(stock.lowThreshold()).stream()
+                .map(ProductResponse::from)
+                .toList();
     }
 
     public List<ProductResponse> search(String name) {
