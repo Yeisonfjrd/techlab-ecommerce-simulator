@@ -1,0 +1,59 @@
+package com.techlab.ecommerce.user;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.techlab.ecommerce.common.error.BusinessRuleException;
+import com.techlab.ecommerce.common.error.ResourceNotFoundException;
+
+@Service
+@Transactional(readOnly = true)
+public class UserService {
+
+    private final UserRepository users;
+
+    public UserService(UserRepository users) {
+        this.users = users;
+    }
+
+    public List<UserResponse> findAll() {
+        return users.findAll().stream().map(UserResponse::from).toList();
+    }
+
+    public UserResponse get(Long id) {
+        return UserResponse.from(getEntity(id));
+    }
+
+    @Transactional
+    public UserResponse create(UserRequest request) {
+        // Stored lowercase so "Ana@Mail.com" and "ana@mail.com" are the same account
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+
+        // Check 1: a friendly error for the normal case
+        if (users.existsByEmail(email)) {
+            throw new BusinessRuleException("A user with email " + email + " already exists");
+        }
+
+        Role role = request.role() == null ? Role.CLIENT : request.role();
+        try {
+            // Check 2: two requests can pass check 1 at the same time; the unique
+            // constraint makes the second insert fail instead of creating a duplicate
+            return UserResponse.from(users.saveAndFlush(new User(request.name().trim(), email, role)));
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessRuleException("A user with email " + email + " already exists");
+        }
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        users.delete(getEntity(id));
+    }
+
+    public User getEntity(Long id) {
+        return users.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+}
