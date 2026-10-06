@@ -3,6 +3,8 @@ package com.techlab.ecommerce.common.error;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,6 +26,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessRuleException.class)
     public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
         return problem(HttpStatus.CONFLICT, "Business rule violated", ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleIntegrity(DataIntegrityViolationException ex) {
+        // Don't echo the SQL error: it leaks table and constraint names
+        return problem(HttpStatus.CONFLICT, "Data conflict",
+                "The operation conflicts with existing data (for example, it is still referenced by an order)");
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleConcurrentUpdate(OptimisticLockingFailureException ex) {
+        return problem(HttpStatus.CONFLICT, "Concurrent update",
+                "The data changed while your request was being processed. Try again.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -50,7 +50,12 @@ public class UserService {
 
     @Transactional
     public void delete(Long id) {
-        users.delete(getEntity(id));
+        User user = getEntity(id);
+        if (users.hasOrders(id)) {
+            throw new BusinessRuleException("User " + id + " has orders and can't be deleted");
+        }
+        users.delete(user);
+        users.flush(); // same safety net as ProductService.delete
     }
 
     public User getEntity(Long id) {
