@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,5 +37,11 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderResponse get(@PathVariable Long id) {
         return service.get(id);
+    }
+
+    // PATCH, not PUT: only the status changes, not the whole order
+    @PatchMapping("/{id}/status")
+    public OrderResponse updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
+        return service.updateStatus(id, request.status());
     }
 }

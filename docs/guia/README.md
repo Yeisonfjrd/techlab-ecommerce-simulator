@@ -7,3 +7,4 @@ Cómo pasé el simulador de `legacy/simulator.html` a Spring Boot. Un archivo po
 3. [CRUD de productos](03-crud-productos.md)
 4. [Usuarios, email único y roles](04-usuarios.md)
 5. [Crear un pedido, todo o nada](05-pedidos.md)
+6. [Historial y estados del pedido](06-estados-e-historial.md)

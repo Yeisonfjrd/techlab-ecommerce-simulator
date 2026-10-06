@@ -3,6 +3,7 @@ package com.techlab.ecommerce.order;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -112,6 +113,47 @@ class OrderApiTest {
         postJson("/api/orders", order(item(mouseId, 1))).andExpect(status().isCreated());
 
         mvc.perform(delete("/api/users/{id}", userId)).andExpect(status().isConflict());
+    }
+
+    private ResultActions changeStatus(long orderId, String status) throws Exception {
+        return mvc.perform(patch("/api/orders/{id}/status", orderId).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\": \"%s\"}".formatted(status)));
+    }
+
+    @Test
+    void followsTheStatusFlow() throws Exception {
+        long orderId = idOf(postJson("/api/orders", order(item(mouseId, 1))));
+
+        changeStatus(orderId, "PAID").andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PAID"));
+        changeStatus(orderId, "SHIPPED").andExpect(status().isOk());
+        changeStatus(orderId, "PENDING")
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail").value("An order can't go from SHIPPED to PENDING"));
+    }
+
+    @Test
+    void cancellingPutsTheStockBack() throws Exception {
+        long orderId = idOf(postJson("/api/orders", order(item(mouseId, 2))));
+        mvc.perform(get("/api/products/{id}", mouseId)).andExpect(jsonPath("$.stock").value(3));
+
+        changeStatus(orderId, "CANCELLED").andExpect(status().isOk());
+
+        mvc.perform(get("/api/products/{id}", mouseId)).andExpect(jsonPath("$.stock").value(5));
+    }
+
+    @Test
+    void historyListsTheUsersOrders() throws Exception {
+        postJson("/api/orders", order(item(mouseId, 1))).andExpect(status().isCreated());
+        postJson("/api/orders", order(item(cableId, 1))).andExpect(status().isCreated());
+
+        mvc.perform(get("/api/users/{id}/orders", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    void historyOfAnUnknownUserIs404() throws Exception {
+        mvc.perform(get("/api/users/{id}/orders", 999)).andExpect(status().isNotFound());
     }
 
     @Test
