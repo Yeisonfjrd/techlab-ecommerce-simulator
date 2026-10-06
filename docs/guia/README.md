@@ -5,3 +5,4 @@ Cómo pasé el simulador de `legacy/simulator.html` a Spring Boot. Un archivo po
 1. [Entidades y repositorios](01-entidades.md)
 2. [Manejo de errores](02-errores.md)
 3. [CRUD de productos](03-crud-productos.md)
+4. [Usuarios, email único y roles](04-usuarios.md)
