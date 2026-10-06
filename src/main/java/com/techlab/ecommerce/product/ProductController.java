@@ -32,6 +32,12 @@ public class ProductController {
         return service.search(name);
     }
 
+    // A literal path wins over /{id}, so "low-stock" is never parsed as an id
+    @GetMapping("/low-stock")
+    public List<ProductResponse> lowStock() {
+        return service.lowStock();
+    }
+
     @GetMapping("/{id}")
     public ProductResponse get(@PathVariable Long id) {
         return service.get(id);
