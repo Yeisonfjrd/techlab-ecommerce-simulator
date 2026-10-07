@@ -66,6 +66,3 @@ The schema comes from Flyway migrations in `src/main/resources/db/migration`; Hi
 - No pagination on list endpoints.
 - The H2 test run and the PostgreSQL CI job cover the same suite; Testcontainers would let the PostgreSQL run happen locally too.
 
-## How it was built
-
-Step by step, one PR per issue, with the reasoning behind each decision: [docs/guia](docs/guia/README.md) (in Spanish).
