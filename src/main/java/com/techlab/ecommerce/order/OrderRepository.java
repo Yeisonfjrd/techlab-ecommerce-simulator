@@ -7,9 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    // "User_Id" walks the relationship: WHERE o.user.id = ?
-    // The entity graph loads the lines in the same query; without it, listing
-    // 20 orders would run 1 query for the orders + 20 more for their lines (N+1)
+    // fetch lines in the same query (N+1 otherwise)
     @EntityGraph(attributePaths = "lines")
     List<Order> findByUser_IdOrderByCreatedAtDesc(Long userId);
 }

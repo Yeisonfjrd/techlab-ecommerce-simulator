@@ -58,7 +58,7 @@ class ProductApiTest {
 
     @Test
     void stockZeroIsValid() throws Exception {
-        // The simulator rejected this with `if (!productData.stock)` even though only negatives are invalid
+        // the JS version rejected 0: `if (!productData.stock)`
         postJson("/api/products", "{\"name\": \"Agotado\", \"price\": 5, \"stock\": 0}")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.stock").value(0));

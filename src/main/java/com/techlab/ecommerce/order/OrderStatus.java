@@ -3,9 +3,6 @@ package com.techlab.ecommerce.order;
 import java.util.Set;
 
 /**
- * The simulator stored free strings and let any status become any other.
- * Here each status knows which ones can follow it:
- *
  * PENDING -> PAID -> SHIPPED -> DELIVERED
  *    \         \
  *     ------------> CANCELLED

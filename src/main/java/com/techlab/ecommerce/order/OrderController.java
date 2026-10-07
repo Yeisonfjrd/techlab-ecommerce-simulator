@@ -39,7 +39,6 @@ public class OrderController {
         return service.get(id);
     }
 
-    // PATCH, not PUT: only the status changes, not the whole order
     @PatchMapping("/{id}/status")
     public OrderResponse updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateStatusRequest request) {
         return service.updateStatus(id, request.status());

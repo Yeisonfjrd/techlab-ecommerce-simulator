@@ -30,18 +30,15 @@ public class UserService {
 
     @Transactional
     public UserResponse create(UserRequest request) {
-        // Stored lowercase so "Ana@Mail.com" and "ana@mail.com" are the same account
         String email = request.email().trim().toLowerCase(Locale.ROOT);
 
-        // Check 1: a friendly error for the normal case
         if (users.existsByEmail(email)) {
             throw new BusinessRuleException("A user with email " + email + " already exists");
         }
 
         Role role = request.role() == null ? Role.CLIENT : request.role();
         try {
-            // Check 2: two requests can pass check 1 at the same time; the unique
-            // constraint makes the second insert fail instead of creating a duplicate
+            // the unique constraint catches a concurrent duplicate
             return UserResponse.from(users.saveAndFlush(new User(request.name().trim(), email, role)));
         } catch (DataIntegrityViolationException e) {
             throw new BusinessRuleException("A user with email " + email + " already exists");

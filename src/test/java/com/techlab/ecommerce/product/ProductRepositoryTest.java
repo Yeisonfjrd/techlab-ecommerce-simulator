@@ -30,7 +30,6 @@ class ProductRepositoryTest {
         Category peripherals = categories.save(new Category("Periféricos"));
         Product mouse = products.save(new Product("Mouse", "Inalámbrico", new BigDecimal("19.99"), 10, null, peripherals));
 
-        // Clear the persistence context so the next read really goes to the database
         em.flush();
         em.clear();
 

@@ -11,10 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * One place that turns exceptions into HTTP responses, all with the same shape
- * (RFC 9457 "problem details"). Services throw; controllers stay free of try/catch.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

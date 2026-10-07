@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-// The threshold comes from configuration, so the test can set its own
 @SpringBootTest(properties = "techlab.stock.low-threshold=3")
 @AutoConfigureMockMvc
 @Transactional

@@ -9,10 +9,6 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-/**
- * What the client sends to create or replace a product.
- * Same rules as ProductService.addProduct in the simulator, minus its stock-0 bug.
- */
 public record ProductRequest(
         @NotBlank @Size(max = 120) String name,
         @Size(max = 1000) String description,

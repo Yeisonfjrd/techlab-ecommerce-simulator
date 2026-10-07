@@ -24,7 +24,6 @@ public class ProductService {
         this.stock = stock;
     }
 
-    /** Port of renderLowStockProducts: `p.stock <= MIN_STOCK_THRESHOLD`. */
     public List<ProductResponse> lowStock() {
         return products.findByStockLessThanEqualOrderByStockAsc(stock.lowThreshold()).stream()
                 .map(ProductResponse::from)
@@ -64,7 +63,6 @@ public class ProductService {
         product.setStock(request.stock());
         product.setImageUrl(request.imageUrl());
         product.setCategory(categories.getEntity(request.categoryId()));
-        // No save() needed: the entity is managed, Hibernate writes the changes on commit
         return ProductResponse.from(product);
     }
 
@@ -75,12 +73,10 @@ public class ProductService {
             throw new BusinessRuleException("Product '" + product.getName() + "' is part of existing orders and can't be deleted");
         }
         products.delete(product);
-        // Safety net: run the DELETE now, so if an order slipped in since the check above,
-        // the foreign key fails inside this method and the handler turns it into a 409
+        // flush now so a FK violation from a concurrent order becomes a 409 here
         products.flush();
     }
 
-    /** For other services (orders) that need the managed entity, not the DTO. */
     public Product getEntity(Long id) {
         return products.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", id));
     }

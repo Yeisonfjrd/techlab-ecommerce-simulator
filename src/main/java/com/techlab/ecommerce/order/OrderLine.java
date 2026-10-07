@@ -30,8 +30,7 @@ public class OrderLine {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    // Snapshots, like priceAtTimeOfOrder and productName in the simulator:
-    // editing the product later must not rewrite what the customer bought
+    // snapshot: editing the product later doesn't change past orders
     @Column(nullable = false, length = 120)
     private String productName;
 

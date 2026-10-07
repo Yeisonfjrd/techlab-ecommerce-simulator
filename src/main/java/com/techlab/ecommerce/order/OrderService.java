@@ -28,21 +28,16 @@ public class OrderService {
         this.users = users;
     }
 
-    /**
-     * Port of OrderService.createOrder from the simulator. All or nothing: every line is
-     * checked before any stock is touched, and the whole method is one transaction, so if
-     * anything fails halfway the database is left exactly as it was.
-     */
+    /** All or nothing: every line is checked before any stock is touched. */
     @Transactional
     public OrderResponse create(CreateOrderRequest request) {
         User user = users.getEntity(request.userId());
 
-        // The same product twice in the cart counts as one line with the summed quantity,
-        // otherwise 2 lines of 3 units could each pass a stock check of 5
+        // same product twice in the cart: check the summed quantity, not each line
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         request.items().forEach(item -> quantities.merge(item.productId(), item.quantity(), Integer::sum));
 
-        // Phase 1: validate everything
+        // validate everything first
         Map<Product, Integer> toBuy = new LinkedHashMap<>();
         quantities.forEach((productId, quantity) -> {
             Product product = products.getEntity(productId);
@@ -53,7 +48,7 @@ public class OrderService {
             toBuy.put(product, quantity);
         });
 
-        // Phase 2: only now change anything
+        // then deduct
         Order order = new Order(user);
         toBuy.forEach((product, quantity) -> {
             product.setStock(product.getStock() - quantity);
@@ -67,16 +62,11 @@ public class OrderService {
         return OrderResponse.from(getEntity(id));
     }
 
-    /** Port of getOrdersByUserId, newest first. */
     public List<OrderResponse> history(Long userId) {
-        users.getEntity(userId); // 404 for an unknown user instead of an empty list
+        users.getEntity(userId); // 404, not an empty list
         return orders.findByUser_IdOrderByCreatedAtDesc(userId).stream().map(OrderResponse::from).toList();
     }
 
-    /**
-     * Port of updateOrderStatus, which accepted any status. Only the transitions in
-     * OrderStatus are allowed, and cancelling puts the stock back on the shelf.
-     */
     @Transactional
     public OrderResponse updateStatus(Long id, OrderStatus next) {
         Order order = getEntity(id);

@@ -29,7 +29,6 @@ public class Product {
     @Column(length = 1000)
     private String description;
 
-    // BigDecimal, not double: 0.1 + 0.2 must be 0.3 when we add up an order
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
@@ -42,7 +41,6 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // Optimistic locking: two orders that read the same stock can't both write it back
     @Version
     private Long version;
 

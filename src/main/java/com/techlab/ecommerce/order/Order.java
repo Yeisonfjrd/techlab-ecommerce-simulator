@@ -44,7 +44,6 @@ public class Order {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
-    // The order owns its lines: saving the order saves them, removing one deletes it
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderLine> lines = new ArrayList<>();
 
@@ -56,7 +55,6 @@ public class Order {
         this.user = user;
     }
 
-    /** Keeps both sides of the relationship in sync and the total up to date. */
     public void addLine(OrderLine line) {
         line.setOrder(this);
         lines.add(line);

@@ -7,10 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * In the simulator a category was a free string on the product ("General" by default).
- * As its own table, a typo can't silently create a new category.
- */
 @Entity
 @Table(name = "categories")
 public class Category {
